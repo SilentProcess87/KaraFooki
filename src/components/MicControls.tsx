@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import {
-  Mic, MicOff, Volume2, Speaker, AlertTriangle,
-  Radio, Waves,
+  Mic, Volume2, Speaker, AlertTriangle,
+  Radio, Waves, Headphones,
 } from 'lucide-react';
 import { useKaraokeStore } from '../stores/useKaraokeStore';
 import type { AudioEngineState, AudioEngineControls } from '../hooks/useAudioEngine';
@@ -179,27 +179,37 @@ export function MicControls({ audioState, audioControls }: Props) {
 
         {/* Enable / mute */}
         <div className="flex gap-1.5 shrink-0">
+          {/* Enable/disable the microphone entirely */}
           <button
             onClick={() => audioState.isEnabled ? audioControls.disable() : audioControls.enable()}
             className={`flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${micBtnCls}`}
           >
             {audioState.isEnabled
-              ? micMuted ? <><MicOff size={12} /> Muted</> : <><Mic size={12} /> Live</>
+              ? <><Mic size={12} /> Mic On</>
               : <><Mic size={12} /> Enable Mic</>}
           </button>
-          {audioState.isEnabled && (
-            <button
-              onClick={() => setMicMuted(!micMuted)}
-              className={`px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${
-                micMuted
-                  ? 'bg-orange-600 hover:bg-orange-500 text-white'
-                  : isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-              }`}
-              title={micMuted ? 'Unmute mic' : 'Mute mic'}
-            >
-              {micMuted ? <MicOff size={12} /> : <MicOff size={12} className="opacity-40" />}
-            </button>
-          )}
+
+          {/* Headphone monitor toggle:
+               ON  = you hear yourself + music  (default).
+               OFF = music only in headphones; mic is still captured for recording. */}
+          <button
+            disabled={!audioState.isEnabled}
+            onClick={() => {
+              setMicMuted(!micMuted);
+              if (audioState.isEnabled) audioControls.setMuted(!micMuted);
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+              !audioState.isEnabled
+                ? isDark ? 'bg-gray-800 text-gray-600 cursor-not-allowed' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : !micMuted
+                ? 'bg-blue-600 hover:bg-blue-500 text-white'
+                : isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-400' : 'bg-gray-200 hover:bg-gray-300 text-gray-500'
+            }`}
+            title={!micMuted ? 'Monitoring on — click for music-only mode' : 'Music-only mode — click to hear yourself'}
+          >
+            <Headphones size={12} />
+            {micMuted ? 'Music only' : 'Hear self'}
+          </button>
         </div>
 
         {/* Inline notices */}
@@ -211,7 +221,13 @@ export function MicControls({ audioState, audioControls }: Props) {
         {audioState.isEnabled && !micMuted && (
           <span className={`flex items-center gap-1 text-xs shrink-0 ${textMuted}`}>
             <AlertTriangle size={10} className="text-yellow-500" />
-            Use headphones to avoid feedback
+            Use headphones to avoid echo
+          </span>
+        )}
+        {audioState.isEnabled && micMuted && (
+          <span className="flex items-center gap-1 text-xs text-blue-400 shrink-0">
+            <Headphones size={10} />
+            Music only — mic still records
           </span>
         )}
       </div>

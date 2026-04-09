@@ -4,6 +4,7 @@ import { YouTubePlayer } from './components/YouTubePlayer';
 import { SongPanel } from './components/SongPanel';
 import { MicControls } from './components/MicControls';
 import { RecordPanel } from './components/RecordPanel';
+import { PresetPanel } from './components/PresetPanel';
 import { useKaraokeStore } from './stores/useKaraokeStore';
 import { useAudioEngine } from './hooks/useAudioEngine';
 import { useRecorder } from './hooks/useRecorder';
@@ -56,6 +57,7 @@ export default function App() {
   // ── Recorder ─────────────────────────────────────────────────────────
   const [recState, recControls] = useRecorder(audioState.micRecordStream);
   const [showRecordPanel, setShowRecordPanel] = useState(false);
+  const [showPresetPanel, setShowPresetPanel] = useState(false);
 
   // ── Keyboard shortcuts ────────────────────────────────────────────────
   // Keep a stable ref for play toggle (set by YouTubePlayer via window event)
@@ -111,10 +113,18 @@ export default function App() {
       {/* Record panel floats below the header's Record button */}
       <div className="relative">
         <Header
-          onToggleRecord={() => setShowRecordPanel(v => !v)}
+          onToggleRecord={() => { setShowRecordPanel(v => !v); setShowPresetPanel(false); }}
           isRecording={recState.isRecording}
           showRecord={showRecordPanel}
+          onTogglePresets={() => { setShowPresetPanel(v => !v); setShowRecordPanel(false); }}
+          showPresets={showPresetPanel}
         />
+        {/* Floating panels anchored below header */}
+        {showPresetPanel && (
+          <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50">
+            <PresetPanel onClose={() => setShowPresetPanel(false)} />
+          </div>
+        )}
         {showRecordPanel && (
           <div className="absolute right-4 top-full mt-1 z-50">
             <RecordPanel

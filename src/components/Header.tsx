@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Mic, Moon, Sun, Keyboard, X, Circle } from 'lucide-react';
+import { Mic, Moon, Sun, Keyboard, X, Circle, SlidersHorizontal } from 'lucide-react';
 import { useKaraokeStore } from '../stores/useKaraokeStore';
 
 export interface HeaderProps {
   onToggleRecord: () => void;
   isRecording: boolean;
   showRecord: boolean;
+  onTogglePresets: () => void;
+  showPresets: boolean;
 }
 
 const SHORTCUTS = [
@@ -19,7 +21,7 @@ const SHORTCUTS = [
   { key: 'L', action: 'Toggle lyrics panel' },
 ];
 
-export function Header({ onToggleRecord, isRecording, showRecord }: HeaderProps) {
+export function Header({ onToggleRecord, isRecording, showRecord, onTogglePresets, showPresets }: HeaderProps) {
   const theme = useKaraokeStore(s => s.theme);
   const setTheme = useKaraokeStore(s => s.setTheme);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -54,6 +56,18 @@ export function Header({ onToggleRecord, isRecording, showRecord }: HeaderProps)
             <Keyboard size={13} />
             <span className="hidden sm:inline">Shortcuts</span>
           </button>
+          {/* Presets button */}
+          <button
+            onClick={onTogglePresets}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              showPresets ? 'bg-fuchsia-600 text-white' : btn
+            }`}
+            title="Vocal presets — quick effect settings for popular songs"
+          >
+            <SlidersHorizontal size={11} />
+            <span className="hidden sm:inline">Presets</span>
+          </button>
+
           {/* Record button */}
           <button
             onClick={onToggleRecord}
